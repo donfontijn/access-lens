@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import chromium from "@sparticuz/chromium-min";
 
 type IngestPayload = {
   screenshotDataUrl?: string;
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
               let launchArgs: string[];
               
               if (isVercel) {
-                // Vercel: use lightweight serverless Chromium
+                // Vercel: use minimal Chromium optimized for serverless
                 executablePath = await chromium.executablePath();
                 launchArgs = chromium.args;
               } else {
@@ -124,7 +124,8 @@ export async function POST(request: NextRequest) {
               const browser = await puppeteer.launch({
                 args: launchArgs,
                 executablePath,
-                headless: true,
+                headless: chromium.headless,
+                defaultViewport: chromium.defaultViewport,
               });
               const page = await browser.newPage();
               await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
