@@ -38,16 +38,25 @@ Access Lens is a human-centered accessibility evaluator that goes beyond complia
    # GreenPT API (for visual analysis and LLM recommendations)
    GREENPT_API_KEY=your_greenpt_api_key_here
    GREENPT_BASE_URL=https://api.greenpt.ai
+   # Puppeteer cache directory (helps Vercel/local CI reuse Chrome)
+   PUPPETEER_CACHE_DIR=./.cache/puppeteer
    ```
 
    **Note**: The tool works without API keys—it will use heuristic-only analysis with fallback recommendations. For best results, configure the GreenPT API key.
 
-3. **Run the development server**:
+3. **Install headless Chrome for Puppeteer**:
+   ```bash
+   npm run postinstall
+   ```
+   This command runs automatically on `npm install`, and downloads the Chromium build Puppeteer needs. On hosting providers (e.g. Vercel) this happens during the build step as well.
+   - **Vercel tip**: define `PUPPETEER_CACHE_DIR=/tmp/puppeteer` in the project environment variables so the download is cached between builds.
+
+4. **Run the development server**:
    ```bash
    npm run dev
    ```
 
-4. **Open** [http://localhost:3000](http://localhost:3000)
+5. **Open** [http://localhost:3000](http://localhost:3000)
 
 ## How It Works
 
