@@ -102,7 +102,17 @@ export async function POST(request: NextRequest) {
               console.log(`Generating screenshot for ${normalizedUrl}...`);
               const browser = await puppeteer.launch({
                 headless: true,
-                args: ['--no-sandbox', '--disable-setuid-sandbox'],
+                args: [
+                  '--no-sandbox',
+                  '--disable-setuid-sandbox',
+                  '--disable-dev-shm-usage',
+                  '--disable-accelerated-2d-canvas',
+                  '--no-first-run',
+                  '--no-zygote',
+                  '--single-process',
+                  '--disable-gpu'
+                ],
+                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
               });
               const page = await browser.newPage();
               await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });

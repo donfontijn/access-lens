@@ -91,6 +91,22 @@ npm run build
 npm start
 ```
 
+## Vercel Deployment
+
+For Vercel deployments, ensure:
+
+1. **Environment Variables** are set in Vercel dashboard:
+   - `GREENPT_API_KEY` - Your GreenPT API key
+   - `GREENPT_BASE_URL` - `https://api.greenpt.ai`
+   - `PUPPETEER_CACHE_DIR` - `/tmp/puppeteer` (optional, for caching)
+
+2. **Build Settings**: The `vercel.json` file ensures Chrome is installed during build. If you still see Puppeteer errors:
+   - Check Vercel build logs to confirm `install-chrome` runs
+   - Ensure the build has enough time (60s max duration is configured)
+   - Consider using Vercel's Pro plan for longer build times if needed
+
+3. **Function Timeout**: API routes are configured for 60s max duration to handle screenshot generation.
+
 ## License
 
 MIT

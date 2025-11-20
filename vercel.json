@@ -1,0 +1,9 @@
+{
+  "buildCommand": "npm run install-chrome && next build",
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 60
+    }
+  }
+}
+
