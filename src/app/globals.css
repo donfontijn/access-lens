@@ -2,14 +2,23 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111827;
+  --font-family-base: var(--font-lexend, "Lexend", "Atkinson Hyperlegible", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  --font-family-accessible: var(--font-family-base);
+  --font-size-body: 17px;
+  --font-size-secondary: 16px;
+  --line-height-body: 1.6;
+  --line-height-heading: 1.25;
+  --letter-spacing-body: 0.005em;
+  --letter-spacing-uppercase: 0.02em;
+  --paragraph-spacing: 1.1rem;
+  --max-text-width: 44rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-lexend);
 }
 
 /* Light theme (default) */
@@ -35,9 +44,13 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  letter-spacing: var(--letter-spacing-body);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
+
 
 .skip-link {
   position: absolute;

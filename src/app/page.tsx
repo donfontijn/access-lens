@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useMemo, useRef, useState, useId, useEffect } from "react";
+import { layoutTokens, typographyTokens } from "./design-tokens";
 
 type IngestResponse = {
   screenshotDataUrl?: string;
@@ -29,6 +30,20 @@ type MetricResult = {
 
 const ACCEPTED_FILE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
+
+const TYPE_SCALE = {
+  body: `text-[${typographyTokens.sizes.body}] leading-[${typographyTokens.lineHeights.body}] tracking-[${typographyTokens.letterSpacing.body}]`,
+  secondary: `text-[${typographyTokens.sizes.secondary}] leading-[${typographyTokens.lineHeights.body}] tracking-[${typographyTokens.letterSpacing.body}]`,
+  caption: `text-[${typographyTokens.sizes.caption}] leading-[1.45]`,
+  h1: `text-[${typographyTokens.sizes.h1}] leading-[${typographyTokens.lineHeights.heading}] font-semibold`,
+  h2: `text-[${typographyTokens.sizes.h2}] leading-[${typographyTokens.lineHeights.heading}] font-semibold`,
+  h3: `text-[${typographyTokens.sizes.h3}] leading-[${typographyTokens.lineHeights.heading}] font-semibold`,
+  uppercase: `uppercase text-[${typographyTokens.sizes.uppercase}] tracking-[${typographyTokens.letterSpacing.uppercase}] font-semibold`,
+  label: `text-[${typographyTokens.sizes.button}] font-medium`,
+  button: `text-[${typographyTokens.sizes.button}] font-semibold`,
+};
+
+const MAX_TEXT_WIDTH_CLASS = `max-w-[${layoutTokens.textMaxWidth}]`;
 
 export default function Home() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
@@ -128,31 +143,31 @@ export default function Home() {
 
     setIsAnalyzing(true);
     setStatusMessage("Preparing your input…");
-    setError(null);
-    setResponse(null);
-    setMetrics(null);
+      setError(null);
+      setResponse(null);
+      setMetrics(null);
     setAnalysis(null);
     setGreenptData(null);
-    setMetricsTimestamp(null);
+      setMetricsTimestamp(null);
 
-    try {
-      const formData = new FormData();
+      try {
+        const formData = new FormData();
       if (file) {
-        formData.append("screenshot", file);
-      }
+          formData.append("screenshot", file);
+        }
       if (urlInput.trim()) {
-        formData.append("url", urlInput.trim());
-      }
+          formData.append("url", urlInput.trim());
+        }
 
       const ingestRes = await fetch("/api/ingest", {
-        method: "POST",
-        body: formData,
-      });
+          method: "POST",
+          body: formData,
+        });
 
       if (!ingestRes.ok) {
         const payload = await ingestRes.json().catch(() => ({}));
-        throw new Error(payload.error ?? "Unable to ingest input.");
-      }
+          throw new Error(payload.error ?? "Unable to ingest input.");
+        }
 
       const ingestPayload = (await ingestRes.json()) as IngestResponse;
       if (ingestPayload.error) {
@@ -231,6 +246,7 @@ export default function Home() {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
+
   const themeClasses = theme === "light" 
     ? "bg-white text-slate-900"
     : "bg-slate-950 text-slate-50";
@@ -244,12 +260,12 @@ export default function Home() {
     : "border-slate-700 bg-slate-950 text-white placeholder:text-slate-400";
   
   const textMutedClasses = theme === "light"
-    ? "text-slate-600"
-    : "text-slate-400";
-  
+    ? "text-slate-700"
+    : "text-slate-200";
+
   const textSecondaryClasses = theme === "light"
-    ? "text-slate-500"
-    : "text-slate-300";
+    ? "text-slate-600"
+    : "text-slate-100";
 
   return (
     <div className={`min-h-screen transition-colors ${themeClasses}`}>
@@ -258,44 +274,99 @@ export default function Home() {
       </a>
       <main id="main-content" className="mx-auto flex min-h-screen max-w-6xl flex-col gap-10 px-4 py-12 sm:px-8 lg:px-12" role="main">
         <header className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8 shadow-2xl shadow-slate-950/40">
-          <div className="flex items-center justify-between gap-4">
-            <span className="inline-flex items-center gap-2 rounded-full border border-teal-500/50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-teal-200">
-              <span role="img" aria-label="logo">👁️‍🗨️</span>
-              Access Lens
-            </span>
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <div className="flex flex-wrap items-center gap-4">
+              <Image
+                src="/accesslens_logo.svg"
+                alt="Access Lens logo"
+                width={320}
+                height={90}
+                priority
+                className="h-16 w-auto brightness-0 invert"
+              />
+              <div className="space-y-1">
+                <p className={`${TYPE_SCALE.uppercase} text-teal-200`}>
+                  See your interface the way every human does
+                </p>
+                <p className="text-base font-semibold text-white/90">Human-centered accessibility studio • Powered by sustainable AI</p>
+              </div>
+            </div>
             <button
               id={themeToggleId}
               type="button"
               onClick={toggleTheme}
               aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-              className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xl text-teal-200 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500"
+              className={`${TYPE_SCALE.button} rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xl text-teal-100 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-500`}
             >
               {theme === "dark" ? "☀️" : "🌙"}
             </button>
           </div>
-          <h1 className="mt-6 text-4xl font-semibold leading-tight text-white sm:text-5xl lg:text-6xl">
-            <span className="mr-3 text-5xl" role="img" aria-label="Upload">📤</span>
-            <span className="bg-gradient-to-r from-slate-50 via-teal-200 to-slate-50 bg-clip-text text-transparent">
-              Drop a screen or paste a URL—get clarity in one pass.
-            </span>
-          </h1>
-          <p className={`mt-4 max-w-3xl text-lg ${textSecondaryClasses}`}>
-            We surface the human signals—readability, cognitive load, visual stress—without the compliance noise.
-            Upload production pixels or point to any live flow and Access Lens stitches heuristics, visual analysis,
-            and AI critique together for you.
-          </p>
-          <div className="mt-6 grid gap-4 text-sm text-slate-200 sm:grid-cols-3">
+
+          <div className="mt-8 grid gap-8 lg:grid-cols-[3fr,2fr]">
+            <div className="space-y-5">
+              <p className={`${TYPE_SCALE.body} ${textSecondaryClasses} ${MAX_TEXT_WIDTH_CLASS}`}>
+                Drop a screen or URL. Access Lens fuses heuristics, visual checks, and GreenPT AI to tell you
+                what feels off—and what to fix first.
+              </p>
+              <div className="grid gap-3 text-slate-200 sm:grid-cols-3">
+                {[
+                  { icon: "📤", title: "Bring pixels", desc: "Screenshots or live flows." },
+                  { icon: "📏", title: "Human metrics", desc: "Readability, stress, memory, empathy." },
+                  { icon: "⚡", title: "Instant guidance", desc: "LLM-ranked actions." },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+                  >
+                    <span className="text-2xl" aria-hidden="true">
+                      {item.icon}
+                    </span>
+                    <div>
+                      <p className="text-[18px] font-semibold leading-[1.3]">{item.title}</p>
+                      <p className={`${TYPE_SCALE.caption} text-slate-200/90`}>{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-slate-100 shadow-xl shadow-black/20">
+              <p className={`${TYPE_SCALE.uppercase} text-teal-200`}>Workflow</p>
+              <h2 className={`${TYPE_SCALE.h2} mt-2`}>One-click clarity</h2>
+              <ul className="mt-4 grid gap-4 text-slate-100 sm:grid-cols-3">
+                {[
+                  { icon: "1️⃣", title: "Ingest", desc: "Upload pixels + capture DOM." },
+                  { icon: "2️⃣", title: "Score", desc: "Human metrics + visual scan." },
+                  { icon: "3️⃣", title: "Act", desc: "LLM priorities with effort." },
+                ].map((step) => (
+                  <li key={step.title} className="flex flex-col gap-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                    <span aria-hidden="true" className="text-2xl">
+                      {step.icon}
+                    </span>
+                    <p className="text-[18px] font-semibold leading-[1.3]">{step.title}</p>
+                    <p className={`${TYPE_SCALE.secondary} text-slate-200/90`}>{step.desc}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-4 text-slate-200 sm:grid-cols-3">
             {[
-              { icon: "⚡", label: "Ingestion", desc: "Drag, drop, or paste any screen." },
-              { icon: "🧠", label: "Human Metrics", desc: "Five-signal heuristic snapshot." },
-              { icon: "🤖", label: "Visual + AI", desc: "Visual analysis + LLM insights." },
+              { icon: "⚡", label: "Unified ingestion", desc: "Drag, drop, or paste any screen." },
+              { icon: "🧠", label: "Human metrics", desc: "Five-signal heuristic snapshot." },
+              { icon: "🤖", label: "Visual + AI", desc: "GreenPT analysis + LLM insights." },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-white/5 bg-white/5 p-4">
-                <p className="flex items-center gap-2 text-base font-semibold text-white">
-                  <span role="img" aria-label={item.label}>{item.icon}</span>
+              <div
+                key={item.label}
+                className="border-l-2 border-white/30 pl-4"
+              >
+                <p className="flex items-center gap-2 text-[18px] font-semibold leading-[1.3] text-white">
+                  <span role="img" aria-label={item.label}>
+                    {item.icon}
+                  </span>
                   {item.label}
                 </p>
-                <p className="mt-1 text-sm text-slate-300">{item.desc}</p>
+                <p className={`${TYPE_SCALE.secondary} mt-1 text-slate-300`}>{item.desc}</p>
               </div>
             ))}
           </div>
@@ -303,7 +374,9 @@ export default function Home() {
 
         <section className="grid gap-6">
           <article
-            className={`rounded-2xl border p-6 shadow-2xl ${cardClasses}`}
+            className={`border-l-4 p-6 shadow-none ${
+              theme === "light" ? "border-teal-500/70 bg-white" : "border-teal-300/70 bg-slate-950/30"
+            }`}
             role="region"
             aria-labelledby={screenshotHeadingId}
           >
@@ -311,15 +384,15 @@ export default function Home() {
               <span className="text-2xl" role="img" aria-label="Input">🧩</span>
               Bring a screen or URL
             </h2>
-            <p className={`mt-2 text-sm ${textMutedClasses}`}>
+            <p className={`mt-2 ${TYPE_SCALE.secondary} ${textMutedClasses} ${MAX_TEXT_WIDTH_CLASS}`}>
               Drag & drop a screenshot <strong>and/or</strong> paste a live URL. We&apos;ll ingest whichever
               sources you provide and immediately run the full analysis.
             </p>
 
             <div className="mt-6 grid gap-6 lg:grid-cols-2">
-              <label
-                onDragOver={(event) => event.preventDefault()}
-                onDrop={onDrop}
+            <label
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={onDrop}
                 onKeyDown={handleDropKeyDown}
                 onClick={(event) => {
                   if (event.target === event.currentTarget) {
@@ -330,58 +403,58 @@ export default function Home() {
                 tabIndex={0}
                 aria-describedby={fileHintId}
                 aria-busy={isAnalyzing}
-                className={`flex min-h-[260px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition hover:border-teal-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-500 ${
+                className={`flex min-h-[260px] cursor-pointer flex-col items-center justify-center border-2 border-dashed px-6 py-12 text-center transition hover:border-teal-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-500 ${
                   theme === "light" 
-                    ? "border-slate-300 bg-slate-100 hover:bg-slate-200" 
+                    ? "border-slate-300 bg-slate-50 hover:bg-slate-100" 
                     : "border-slate-700 bg-slate-950/40 hover:bg-slate-900"
                 }`}
-              >
-                <input
+            >
+              <input
                   id={fileInputId}
                   ref={fileInputRef}
-                  type="file"
-                  accept={ACCEPTED_FILE_TYPES.join(",")}
-                  className="hidden"
+                type="file"
+                accept={ACCEPTED_FILE_TYPES.join(",")}
+                className="hidden"
                   aria-describedby={fileHintId}
-                  onChange={(event) => handleFile(event.target.files?.[0] ?? null)}
-                />
+                onChange={(event) => handleFile(event.target.files?.[0] ?? null)}
+              />
                 <span className="text-4xl mb-2" role="img" aria-label="Upload file">📁</span>
-                <span className="text-lg font-medium">Drop your screen here</span>
-                <span id={fileHintId} className={`mt-2 text-sm ${textMutedClasses}`}>
+              <span className="text-lg font-medium">Drop your screen here</span>
+                <span id={fileHintId} className={`mt-2 ${TYPE_SCALE.secondary} ${textMutedClasses}`}>
                   {fileHint}
                 </span>
-                <span className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                <span className={`${TYPE_SCALE.caption} mt-4 text-slate-600 dark:text-slate-200`}>
                   Or press Enter/Space to pick a file
                 </span>
-              </label>
+            </label>
 
               <div className="space-y-4">
                 <div className="space-y-3">
-                  <label className={`text-xs font-semibold uppercase tracking-wide ${textMutedClasses}`} htmlFor={urlInputId}>
+                  <label className={`${TYPE_SCALE.uppercase} ${textMutedClasses}`} htmlFor={urlInputId}>
                     <span className="mr-1" role="img" aria-label="URL">🌐</span>
                     URL
                   </label>
-                  <input
+              <input
                     id={urlInputId}
-                    className={`w-full rounded-xl border px-4 py-3 text-sm outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 ${inputClasses}`}
-                    placeholder="https://app.yourproduct.com/checkout"
-                    value={urlInput}
-                    onChange={(event) => setUrlInput(event.target.value)}
+                    className={`w-full rounded-xl border px-4 py-3 text-[17px] leading-[1.5] outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 ${inputClasses}`}
+                placeholder="https://app.yourproduct.com/checkout"
+                value={urlInput}
+                onChange={(event) => setUrlInput(event.target.value)}
                     aria-describedby={urlHintId}
                     inputMode="url"
                     autoCapitalize="none"
                     autoCorrect="off"
-                  />
-                  <p id={urlHintId} className={`text-xs ${textSecondaryClasses}`}>
+              />
+                  <p id={urlHintId} className={`${TYPE_SCALE.caption} ${textSecondaryClasses}`}>
                     Paste any live experience. We&apos;ll fetch markup, attempt a screenshot, and blend it
                     with your uploaded screen if both are available.
                   </p>
-                </div>
+            </div>
 
                 <div className="space-y-3">
-                  <button
+            <button
                     type="button"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-400 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 px-4 py-3 text-[16px] font-semibold text-white transition hover:bg-teal-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-400 disabled:cursor-not-allowed disabled:opacity-40"
                     onClick={handleAnalyze}
                     disabled={(!file && !urlInput.trim()) || isAnalyzing}
                     aria-disabled={(!file && !urlInput.trim()) || isAnalyzing}
@@ -389,12 +462,12 @@ export default function Home() {
                   >
                     <span role="img" aria-hidden="true">{isAnalyzing ? "⏳" : "🚀"}</span>
                     {isAnalyzing ? "Analyzing…" : "Analyze now"}
-                  </button>
-                  <p id={runAnalysisHintId} className={`text-xs ${textSecondaryClasses}`}>
+            </button>
+                  <p id={runAnalysisHintId} className={`${TYPE_SCALE.caption} ${textSecondaryClasses}`}>
                     We run ingestion, heuristics, visual analysis, and LLM recommendations in one shot.
                   </p>
                   {statusMessage ? (
-                    <p className="text-sm text-teal-600 dark:text-teal-300" role="status" aria-live="polite">
+                    <p className={`${TYPE_SCALE.secondary} text-teal-600 dark:text-teal-300`} role="status" aria-live="polite">
                       {statusMessage}
                     </p>
                   ) : null}
@@ -403,7 +476,7 @@ export default function Home() {
                       id={errorRegionId}
                       role="alert"
                       aria-live="assertive"
-                      className="rounded-xl border-2 border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-200"
+                      className="rounded-xl border-2 border-red-500 bg-red-50 px-4 py-3 text-[16px] leading-[1.5] text-red-700 dark:bg-red-500/10 dark:text-red-200"
                     >
                       <span className="mr-2" role="img" aria-label="Error">
                         ❌
@@ -418,20 +491,20 @@ export default function Home() {
         </section>
 
         {(isAnalyzing || response || metrics?.length || analysis) && (
-          <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-          <div className={`rounded-2xl border p-6 shadow-inner ${cardClasses}`}>
+        <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+          <div className={`border-t border-white/10 p-6 ${theme === "light" ? "bg-white" : "bg-slate-950/20"}`}>
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <span role="img" aria-label="Preview">👁️</span>
                 Ingestion Preview
               </h3>
-              <span className={`text-xs uppercase tracking-widest ${textSecondaryClasses}`}>STEP 1 OF 4</span>
+              <span className={`${TYPE_SCALE.uppercase} ${textSecondaryClasses}`}>Step 1 of 4</span>
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              <div className={`rounded-xl border p-3 ${
-                theme === "light" ? "border-slate-300 bg-slate-100" : "border-slate-800 bg-black/40"
+              <div className={`border p-3 ${
+                theme === "light" ? "border-slate-200 bg-slate-50" : "border-slate-800 bg-black/30"
               }`}>
-                <p className={`text-xs flex items-center gap-1 ${textMutedClasses}`}>
+                <p className={`${TYPE_SCALE.caption} flex items-center gap-1 ${textMutedClasses}`}>
                   <span role="img" aria-label="Image">🖼️</span>
                   Visual Source
                 </p>
@@ -447,7 +520,7 @@ export default function Home() {
                     unoptimized
                   />
                 ) : (
-                  <div className={`mt-2 flex h-48 items-center justify-center rounded-lg border border-dashed text-sm ${textSecondaryClasses} ${
+                  <div className={`mt-2 flex h-48 items-center justify-center rounded-lg border border-dashed ${TYPE_SCALE.secondary} ${textSecondaryClasses} ${
                     theme === "light" ? "border-slate-300" : "border-slate-800"
                   }`}>
                     <span className="mr-2" role="img" aria-label="No image">📷</span>
@@ -455,15 +528,15 @@ export default function Home() {
                   </div>
                 )}
               </div>
-              <div className={`rounded-xl border p-3 ${
-                theme === "light" ? "border-slate-300 bg-slate-100" : "border-slate-800 bg-black/40"
+              <div className={`border p-3 ${
+                theme === "light" ? "border-slate-200 bg-slate-50" : "border-slate-800 bg-black/40"
               }`}>
-                <p className={`text-xs flex items-center gap-1 ${textMutedClasses}`}>
+                <p className={`${TYPE_SCALE.caption} flex items-center gap-1 ${textMutedClasses}`}>
                   <span role="img" aria-label="Information">ℹ️</span>
                   Metadata
                 </p>
                 {response?.metadata ? (
-                  <dl className={`mt-2 space-y-2 text-sm ${textSecondaryClasses}`}>
+                  <dl className={`mt-2 space-y-2 ${TYPE_SCALE.secondary} ${textSecondaryClasses}`}>
                     <div className="flex justify-between gap-2">
                       <span className={textMutedClasses}>📦 Source</span>
                       <span>{response.metadata.source}</span>
@@ -494,7 +567,7 @@ export default function Home() {
                     ) : null}
                   </dl>
                 ) : (
-                  <p className={`mt-2 text-sm ${textSecondaryClasses}`}>
+                  <p className={`mt-2 ${TYPE_SCALE.secondary} ${textSecondaryClasses}`}>
                     <span className="mr-1" role="img" aria-label="Info">ℹ️</span>
                     Run an upload or URL fetch to populate metadata.
                   </p>
@@ -502,14 +575,14 @@ export default function Home() {
               </div>
             </div>
             {response?.fetchedHtml ? (
-              <div className={`mt-4 rounded-xl border p-4 ${
-                theme === "light" ? "border-slate-300 bg-slate-100" : "border-slate-800 bg-black/30"
+              <div className={`mt-4 border p-4 ${
+                theme === "light" ? "border-slate-200 bg-slate-50" : "border-slate-800 bg-black/20"
               }`}>
-                <p className={`text-xs font-semibold uppercase flex items-center gap-1 ${textMutedClasses}`}>
+                <p className={`${TYPE_SCALE.uppercase} flex items-center gap-1 ${textMutedClasses}`}>
                   <span role="img" aria-label="Code">💻</span>
                   HTML Snippet
                 </p>
-                <pre className={`mt-2 max-h-48 overflow-y-auto whitespace-pre-wrap text-xs ${textSecondaryClasses}`}>
+                <pre className={`mt-2 max-h-48 overflow-y-auto whitespace-pre-wrap text-[15px] leading-[1.5] ${textSecondaryClasses}`}>
                   {response.fetchedHtml}
                 </pre>
               </div>
@@ -518,7 +591,7 @@ export default function Home() {
 
           <aside className="space-y-4">
             {response?.warnings?.length ? (
-              <div className="rounded-2xl border-2 border-amber-400 bg-amber-50 dark:bg-amber-500/10 p-4 text-sm text-amber-800 dark:text-amber-100" role="alert" aria-live="polite">
+              <div className={`border-l-4 border-amber-400 bg-amber-50 dark:bg-amber-500/10 p-4 ${TYPE_SCALE.secondary} text-amber-800 dark:text-amber-100`} role="alert" aria-live="polite">
                 <p className="font-semibold flex items-center gap-1">
                   <span role="img" aria-label="Warning">⚠️</span>
                   Heads up
@@ -531,25 +604,25 @@ export default function Home() {
               </div>
             ) : null}
             {response?.note ? (
-              <div className={`rounded-2xl border p-4 text-sm ${cardClasses}`}>
+              <div className={`border border-dashed p-4 ${TYPE_SCALE.secondary} ${cardClasses}`}>
                 <span className="mr-1" role="img" aria-label="Note">ℹ️</span>
                 {response.note}
               </div>
             ) : null}
-            <div className={`rounded-2xl border p-6 ${
+            <div className={`border-l-4 p-6 ${
               theme === "light" 
-                ? "border-slate-200 bg-gradient-to-br from-slate-100 to-slate-50" 
-                : "border-white/5 bg-gradient-to-br from-slate-900 to-slate-800"
+                ? "border-teal-500/60 bg-gradient-to-r from-slate-100 to-white" 
+                : "border-teal-300/60 bg-gradient-to-r from-slate-950 to-slate-900"
             }`}>
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <span role="img" aria-label="Next step">➡️</span>
                 Next: Metrics
               </h3>
-              <p className={`mt-2 text-sm ${textMutedClasses}`}>
+              <p className={`mt-2 ${TYPE_SCALE.secondary} ${textMutedClasses}`}>
                 Once ingestion locks, we can pass the payload into five human metrics—readability,
                 cognitive load, stress, memory burden, and empathy alignment.
               </p>
-              <ol className={`mt-4 space-y-2 text-sm ${textSecondaryClasses}`}>
+              <ol className={`mt-4 space-y-2 ${TYPE_SCALE.secondary} ${textSecondaryClasses}`}>
                 <li className="flex items-center gap-2">
                   <span role="img" aria-label="Step 1">1️⃣</span>
                   Normalize the image + DOM snapshot
@@ -569,10 +642,10 @@ export default function Home() {
         )}
 
         {metrics?.length ? (
-          <section className={`rounded-2xl border p-6 shadow-2xl ${cardClasses}`}>
+          <section className={`border-t border-white/10 pt-8 ${theme === "light" ? "bg-white" : "bg-slate-950/10"}`}>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-teal-600 dark:text-teal-300 flex items-center gap-2">
+                <p className={`${TYPE_SCALE.uppercase} text-teal-600 dark:text-teal-300 flex items-center gap-2`}>
                   <span role="img" aria-label="Scorecard">📊</span>
                   Human-centered scorecard
                 </p>
@@ -582,7 +655,7 @@ export default function Home() {
                 </h3>
               </div>
               {metricsTimestamp ? (
-                <p className={`text-sm ${textMutedClasses}`}>
+                <p className={`${TYPE_SCALE.secondary} ${textMutedClasses}`}>
                   <span className="mr-1" role="img" aria-label="Generated">✨</span>
                   Generated {new Date(metricsTimestamp).toLocaleString()}
                 </p>
@@ -592,15 +665,15 @@ export default function Home() {
               {metrics.map((metric) => (
                 <article
                   key={metric.id}
-                  className={`rounded-2xl border p-5 ${
+                  className={`border-l-2 p-5 ${
                     theme === "light" 
-                      ? "border-slate-300 bg-white" 
-                      : "border-slate-800 bg-slate-950/40"
+                      ? "border-slate-900/30 bg-white" 
+                      : "border-teal-400/30 bg-slate-950/40"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className={`text-xs uppercase tracking-widest flex items-center gap-1 ${textMutedClasses}`}>
+                      <p className={`${TYPE_SCALE.uppercase} flex items-center gap-1 ${textMutedClasses}`}>
                         <span className="text-lg" role="img" aria-label={metric.label}>
                           {metricIcons[metric.id] || "📋"}
                         </span>
@@ -623,7 +696,7 @@ export default function Home() {
                       aria-label={`${metric.label} score: ${metric.score}%`}
                     />
                   </div>
-                  <div className={`mt-4 space-y-2 text-sm ${textSecondaryClasses}`}>
+                  <div className={`mt-4 space-y-2 ${TYPE_SCALE.secondary} ${textSecondaryClasses}`}>
                     {metric.recommendations.length ? (
                       <ul className="list-disc space-y-1 pl-4">
                         {metric.recommendations.map((rec) => (
@@ -631,7 +704,7 @@ export default function Home() {
                         ))}
                       </ul>
                     ) : (
-                      <p className="flex items-center gap-1">
+                      <p className={`${TYPE_SCALE.secondary} flex items-center gap-1`}>
                         <span role="img" aria-label="Good">✅</span>
                         Looks solid. Keep validating with user research.
                       </p>
@@ -642,7 +715,7 @@ export default function Home() {
                       {Object.entries(metric.evidence).map(([key, value]) => (
                         <span
                           key={key}
-                          className={`rounded-full border px-3 py-1 text-xs ${textMutedClasses} ${
+                          className={`rounded-full border px-3 py-1 text-[15px] leading-[1.4] ${textMutedClasses} ${
                             theme === "light" ? "border-slate-300" : "border-slate-800"
                           }`}
                         >
@@ -658,10 +731,10 @@ export default function Home() {
         ) : null}
 
         {greenptData && !greenptData.errors ? (
-          <section className={`rounded-2xl border p-6 shadow-2xl ${cardClasses}`}>
+          <section className={`border-t border-white/10 pt-8 ${theme === "light" ? "bg-white" : "bg-slate-950/10"}`}>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-teal-600 dark:text-teal-300 flex items-center gap-2">
+                <p className={`${TYPE_SCALE.uppercase} text-teal-600 dark:text-teal-300 flex items-center gap-2`}>
                   <span role="img" aria-label="Visual Analysis">👁️</span>
                   Visual Analysis
                 </p>
@@ -672,7 +745,7 @@ export default function Home() {
               </div>
               {greenptData.overallScore !== undefined ? (
                 <div className="text-right">
-                  <p className={`text-xs ${textMutedClasses}`}>Overall score</p>
+                  <p className={`${TYPE_SCALE.caption} ${textMutedClasses}`}>Overall score</p>
                   <p className="text-3xl font-bold text-teal-600 dark:text-teal-300 flex items-center justify-end gap-1">
                     {greenptData.overallScore}
                     <span className="text-lg">/100</span>
@@ -683,44 +756,44 @@ export default function Home() {
 
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {greenptData.contrast?.score !== undefined ? (
-                <div className={`rounded-xl border p-4 ${
-                  theme === "light" ? "border-slate-300 bg-white" : "border-slate-800 bg-slate-950/40"
+                <div className={`border-l-2 p-4 ${
+                  theme === "light" ? "border-slate-900/20 bg-white" : "border-slate-700 bg-slate-950/30"
                 }`}>
-                  <p className={`text-xs uppercase tracking-widest ${textMutedClasses}`}>Contrast</p>
+                <p className={`${TYPE_SCALE.uppercase} ${textMutedClasses}`}>Contrast</p>
                   <p className="text-2xl font-bold text-teal-600 dark:text-teal-300 mt-1">
                     {greenptData.contrast.score}/100
                   </p>
                   {greenptData.contrast.issues && greenptData.contrast.issues.length > 0 ? (
-                    <p className={`text-xs mt-2 ${textSecondaryClasses}`}>
+                    <p className={`${TYPE_SCALE.caption} mt-2 ${textSecondaryClasses}`}>
                       {greenptData.contrast.issues.length} issue{greenptData.contrast.issues.length !== 1 ? "s" : ""} found
                     </p>
                   ) : (
-                    <p className={`text-xs mt-2 ${textSecondaryClasses}`}>✅ No issues</p>
+                    <p className={`${TYPE_SCALE.caption} mt-2 ${textSecondaryClasses}`}>✅ No issues</p>
                   )}
                 </div>
               ) : null}
               {greenptData.layout?.complexity !== undefined ? (
-                <div className={`rounded-xl border p-4 ${
-                  theme === "light" ? "border-slate-300 bg-white" : "border-slate-800 bg-slate-950/40"
+                <div className={`border-l-2 p-4 ${
+                  theme === "light" ? "border-slate-900/20 bg-white" : "border-slate-700 bg-slate-950/30"
                 }`}>
-                  <p className={`text-xs uppercase tracking-widest ${textMutedClasses}`}>Layout Complexity</p>
+                <p className={`${TYPE_SCALE.uppercase} ${textMutedClasses}`}>Layout Complexity</p>
                   <p className="text-2xl font-bold text-teal-600 dark:text-teal-300 mt-1">
                     {greenptData.layout.complexity}/100
                   </p>
-                  <p className={`text-xs mt-2 ${textSecondaryClasses}`}>
+                  <p className={`${TYPE_SCALE.caption} mt-2 ${textSecondaryClasses}`}>
                     {greenptData.layout.complexity < 50 ? "✅ Simple" : greenptData.layout.complexity < 75 ? "⚠️ Moderate" : "🔴 Complex"}
                   </p>
                 </div>
               ) : null}
               {greenptData.layout?.visualHierarchy !== undefined ? (
-                <div className={`rounded-xl border p-4 ${
-                  theme === "light" ? "border-slate-300 bg-white" : "border-slate-800 bg-slate-950/40"
+                <div className={`border-l-2 p-4 ${
+                  theme === "light" ? "border-slate-900/20 bg-white" : "border-slate-700 bg-slate-950/30"
                 }`}>
-                  <p className={`text-xs uppercase tracking-widest ${textMutedClasses}`}>Visual Hierarchy</p>
+                <p className={`${TYPE_SCALE.uppercase} ${textMutedClasses}`}>Visual Hierarchy</p>
                   <p className="text-2xl font-bold text-teal-600 dark:text-teal-300 mt-1">
                     {greenptData.layout.visualHierarchy}/100
                   </p>
-                  <p className={`text-xs mt-2 ${textSecondaryClasses}`}>
+                  <p className={`${TYPE_SCALE.caption} mt-2 ${textSecondaryClasses}`}>
                     {greenptData.layout.visualHierarchy > 70 ? "✅ Clear" : greenptData.layout.visualHierarchy > 50 ? "⚠️ Moderate" : "🔴 Unclear"}
                   </p>
                 </div>
@@ -728,10 +801,10 @@ export default function Home() {
             </div>
 
             {greenptData.layout?.focusableElements !== undefined ? (
-              <div className={`mt-4 rounded-xl border p-4 ${
-                theme === "light" ? "border-slate-300 bg-slate-100" : "border-slate-800 bg-slate-950/40"
+              <div className={`mt-4 border p-4 ${
+                theme === "light" ? "border-slate-200 bg-slate-50" : "border-slate-800 bg-slate-950/40"
               }`}>
-                <p className={`text-sm ${textSecondaryClasses}`}>
+                <p className={`${TYPE_SCALE.secondary} ${textSecondaryClasses}`}>
                   <span className="font-semibold">Focusable elements:</span> {greenptData.layout.focusableElements}
                 </p>
               </div>
@@ -740,10 +813,10 @@ export default function Home() {
         ) : null}
 
         {analysis ? (
-          <section className={`rounded-2xl border p-6 shadow-2xl ${cardClasses}`}>
+          <section className={`border-t border-white/10 pt-8 ${theme === "light" ? "bg-white" : "bg-slate-950/5"}`}>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-teal-600 dark:text-teal-300 flex items-center gap-2">
+                <p className={`${TYPE_SCALE.uppercase} text-teal-600 dark:text-teal-300 flex items-center gap-2`}>
                   <span role="img" aria-label="AI">🤖</span>
                   AI-powered recommendations
                 </p>
@@ -753,7 +826,7 @@ export default function Home() {
                 </h3>
               </div>
               <div className="text-right">
-                <p className={`text-xs ${textMutedClasses}`}>Overall score</p>
+                <p className={`${TYPE_SCALE.caption} ${textMutedClasses}`}>Overall score</p>
                 <p className="text-3xl font-bold text-teal-600 dark:text-teal-300 flex items-center justify-end gap-1">
                   {analysis.overallScore}
                   <span className="text-lg">/100</span>
@@ -761,12 +834,12 @@ export default function Home() {
               </div>
             </div>
 
-            <div className={`mt-6 rounded-xl border p-4 ${
+            <div className={`mt-6 border p-4 ${
               theme === "light" 
-                ? "border-slate-300 bg-slate-100" 
+                ? "border-slate-200 bg-slate-50" 
                 : "border-slate-800 bg-slate-950/40"
             }`}>
-              <p className={`text-sm ${textSecondaryClasses}`}>{analysis.summary}</p>
+              <p className={`${TYPE_SCALE.secondary} ${textSecondaryClasses}`}>{analysis.summary}</p>
             </div>
 
             {analysis.topIssues.length > 0 ? (
@@ -779,14 +852,14 @@ export default function Home() {
                   {analysis.topIssues.map((issue, idx) => (
                     <li
                       key={idx}
-                      className={`flex items-start gap-3 rounded-lg border p-3 ${
+                      className={`flex items-start gap-3 border-l-4 p-3 ${
                         theme === "light"
-                          ? "border-slate-300 bg-white"
-                          : "border-slate-800 bg-slate-950/40"
+                          ? "border-amber-400 bg-white"
+                          : "border-amber-300 bg-slate-950/40"
                       }`}
                     >
                       <span
-                        className={`rounded-full px-2 py-1 text-xs font-semibold flex items-center gap-1 ${
+                        className={`rounded-full px-2 py-1 text-[15px] font-semibold flex items-center gap-1 ${
                           issue.severity === "high"
                             ? "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300"
                             : issue.severity === "medium"
@@ -798,8 +871,8 @@ export default function Home() {
                         {issue.severity}
                       </span>
                       <div className="flex-1">
-                        <p className={`text-sm font-medium ${textSecondaryClasses}`}>{issue.metric}</p>
-                        <p className={`text-sm ${textMutedClasses}`}>{issue.issue}</p>
+                        <p className={`${TYPE_SCALE.secondary} font-medium ${textSecondaryClasses}`}>{issue.metric}</p>
+                        <p className={`${TYPE_SCALE.caption} ${textMutedClasses}`}>{issue.issue}</p>
                       </div>
                     </li>
                   ))}
@@ -817,16 +890,16 @@ export default function Home() {
                   {analysis.recommendations.map((rec, idx) => (
                     <div
                       key={idx}
-                      className={`rounded-lg border p-4 ${
+                      className={`border p-4 ${
                         theme === "light"
-                          ? "border-slate-300 bg-white"
+                          ? "border-slate-200 bg-white"
                           : "border-slate-800 bg-slate-950/40"
                       }`}
                     >
                       <div className="mb-2 flex items-center gap-2 flex-wrap">
                         <h5 className="font-semibold">{rec.title}</h5>
                         <span
-                          className={`rounded-full px-2 py-0.5 text-xs flex items-center gap-1 ${
+                          className={`rounded-full px-2 py-0.5 text-[15px] flex items-center gap-1 ${
                             rec.impact === "high"
                               ? "bg-teal-100 text-teal-700 dark:bg-teal-500/20 dark:text-teal-300"
                               : rec.impact === "medium"
@@ -838,7 +911,7 @@ export default function Home() {
                           {rec.impact} impact
                         </span>
                         <span
-                          className={`rounded-full px-2 py-0.5 text-xs flex items-center gap-1 ${
+                          className={`rounded-full px-2 py-0.5 text-[15px] flex items-center gap-1 ${
                             rec.effort === "quick"
                               ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
                               : rec.effort === "medium"
@@ -850,7 +923,7 @@ export default function Home() {
                           {rec.effort}
                         </span>
                       </div>
-                      <p className={`text-sm ${textSecondaryClasses}`}>{rec.description}</p>
+                      <p className={`${TYPE_SCALE.secondary} ${textSecondaryClasses}`}>{rec.description}</p>
                     </div>
                   ))}
                 </div>
@@ -862,7 +935,7 @@ export default function Home() {
         {/* Footer with GreenPT logo */}
         <footer className="mt-12 pt-8 border-t border-slate-300 dark:border-slate-800">
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
-            <p className={`text-sm ${textSecondaryClasses} flex items-center gap-2`}>
+            <p className={`${TYPE_SCALE.secondary} ${textSecondaryClasses} flex items-center gap-2`}>
               <span role="img" aria-label="Sustainable AI">🌱</span>
               Powered by sustainable AI via
             </p>
