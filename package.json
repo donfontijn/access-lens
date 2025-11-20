@@ -4,15 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run install-chrome && next build",
+    "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "postinstall": "npm run install-chrome",
-    "install-chrome": "npx puppeteer browsers install chrome || echo 'Chrome install skipped (may already be installed)'"
+    "lint": "eslint"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^131.0.0",
     "next": "16.0.3",
-    "puppeteer": "^24.30.0",
+    "puppeteer-core": "^24.30.0",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },

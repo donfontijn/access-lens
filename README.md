@@ -98,14 +98,15 @@ For Vercel deployments, ensure:
 1. **Environment Variables** are set in Vercel dashboard:
    - `GREENPT_API_KEY` - Your GreenPT API key
    - `GREENPT_BASE_URL` - `https://api.greenpt.ai`
-   - `PUPPETEER_CACHE_DIR` - `/tmp/puppeteer` (optional, for caching)
 
-2. **Build Settings**: The `vercel.json` file ensures Chrome is installed during build. If you still see Puppeteer errors:
-   - Check Vercel build logs to confirm `install-chrome` runs
-   - Ensure the build has enough time (60s max duration is configured)
-   - Consider using Vercel's Pro plan for longer build times if needed
+2. **Screenshot Generation**: The app uses `@sparticuz/chromium` for serverless-optimized screenshot generation on Vercel. No additional configuration needed - it automatically detects Vercel environment and uses the lightweight Chromium package.
 
 3. **Function Timeout**: API routes are configured for 60s max duration to handle screenshot generation.
+
+**Note**: For local development, you may need to install Chrome manually if screenshots don't work:
+```bash
+npx puppeteer browsers install chrome
+```
 
 ## License
 

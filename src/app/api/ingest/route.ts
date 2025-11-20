@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 type IngestPayload = {
   screenshotDataUrl?: string;
@@ -100,19 +101,30 @@ export async function POST(request: NextRequest) {
             // Generate screenshot from HTML page
             try {
               console.log(`Generating screenshot for ${normalizedUrl}...`);
-              const browser = await puppeteer.launch({
-                headless: true,
-                args: [
+              
+              // Use serverless-optimized Chromium for Vercel, installed Chrome for local dev
+              const isVercel = process.env.VERCEL === "1";
+              let executablePath: string | undefined;
+              let launchArgs: string[];
+              
+              if (isVercel) {
+                // Vercel: use lightweight serverless Chromium
+                executablePath = await chromium.executablePath();
+                launchArgs = chromium.args;
+              } else {
+                // Local dev: use installed Chrome or system Chrome
+                executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || undefined;
+                launchArgs = [
                   '--no-sandbox',
                   '--disable-setuid-sandbox',
                   '--disable-dev-shm-usage',
-                  '--disable-accelerated-2d-canvas',
-                  '--no-first-run',
-                  '--no-zygote',
-                  '--single-process',
-                  '--disable-gpu'
-                ],
-                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+                ];
+              }
+              
+              const browser = await puppeteer.launch({
+                args: launchArgs,
+                executablePath,
+                headless: true,
               });
               const page = await browser.newPage();
               await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 2 });
